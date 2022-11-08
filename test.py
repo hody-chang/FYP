@@ -34,24 +34,6 @@ ax.view_init(40, -10)
 
 sphere_data = np.array([x, y, z]).T
 
-# Perform Isomap Manifold learning.
-t0 = time()
-trans_data = (
-    manifold.Isomap(n_neighbors=n_neighbors, n_components=2)
-    .fit_transform(sphere_data)
-    .T
-)
-t1 = time()
-print("%s: %.2g sec" % ("ISO", t1 - t0))
-
-ax = fig.add_subplot(257)
-plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=plt.cm.rainbow)
-plt.title("%s (%.2g sec)" % ("Isomap", t1 - t0))
-ax.xaxis.set_major_formatter(NullFormatter())
-ax.yaxis.set_major_formatter(NullFormatter())
-plt.axis("tight")
-
-# PCA
 pca = PCA(n_components=3)
 pca.fit_transform(sphere_data)
 
@@ -59,13 +41,11 @@ t0 = time()
 trans_data = pca.fit_transform(sphere_data).T
 
 t1 = time()
-ax = fig.add_subplot(258)
+ax = fig.add_subplot(257)
 plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=plt.cm.rainbow)
-plt.title("%s (%.2g sec)" % ("PCA", t1 - t0))
+plt.title("%s (%.2g sec)" % ("Isomap", t1 - t0))
 ax.xaxis.set_major_formatter(NullFormatter())
 ax.yaxis.set_major_formatter(NullFormatter())
 plt.axis("tight")
-
-
 
 plt.show()
