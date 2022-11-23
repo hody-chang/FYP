@@ -57,7 +57,7 @@ pca = PCA(n_components=3)
 
 
 ### Step 2 - Fit the data and transform it, so we have 3 dimensions instead of 64
-X_trans3 = embed3.fit_transform(X)
+X_trans3 = pca.fit_transform(X)
 
 ### Step 3 - Print shape to test
 print('The new shape of X: ', X_trans3.shape)
