@@ -58,6 +58,7 @@ pca.fit_transform(sphere_data)
 t0 = time()
 trans_data = pca.fit_transform(sphere_data).T
 
+
 t1 = time()
 ax = fig.add_subplot(258)
 plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=plt.cm.rainbow)
