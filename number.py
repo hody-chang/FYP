@@ -20,23 +20,9 @@ print('Shape of digit images: ', digits.images.shape)
 print('Shape of X (training data): ', X.shape)
 print('Shape of y (true labels): ', y.shape)
 
-# Display images of the first 10 digits
-'''
-fig, axs = plt.subplots(2, 5, sharey=False, tight_layout=True, figsize=(12, 6), facecolor='white')
-n = 0
-plt.gray()
-for i in range(0, 2):
-    for j in range(0, 5):
-        axs[i, j].matshow(digits.images[n])
-        axs[i, j].set(title=y[n])
-        n = n + 1
-
-'''
-
-
-### Step 1 - Configure the Isomap function, note we use default hyperparameter values in this example
+### Isomap
 embed3 = Isomap(
-    n_neighbors=10,  # default=5, algorithm finds local structures based on the nearest neighbors
+    n_neighbors=8,  # default=5, algorithm finds local structures based on the nearest neighbors
     n_components=3,  # number of dimensions
     eigen_solver='auto',  # {‘auto’, ‘arpack’, ‘dense’}, default=’auto’
     tol=0,  # default=0, Convergence tolerance passed to arpack or lobpcg. not used if eigen_solver == ‘dense’.
@@ -51,15 +37,12 @@ embed3 = Isomap(
     metric_params=None  # default=None, Additional keyword arguments for the metric function.
 )
 
-
+### PCA
 pca = PCA(n_components=3)
 
+### transform: embed3 = Isomap, pca=PCA
+X_trans3 = embed3.fit_transform(X)
 
-
-### Step 2 - Fit the data and transform it, so we have 3 dimensions instead of 64
-X_trans3 = pca.fit_transform(X)
-
-### Step 3 - Print shape to test
 print('The new shape of X: ', X_trans3.shape)
 
 # Create a 3D scatter plot
