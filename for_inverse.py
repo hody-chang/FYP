@@ -36,6 +36,8 @@ a = np.append(trans_data, [[0, -1]], axis=0)
 nbrs = NearestNeighbors(n_neighbors=8, algorithm='ball_tree').fit(a)
 distances, indices = nbrs.kneighbors(a)
 
+print(indices[-1, 1:7])
+'''
 points = np.concatenate(([sphere_data[indices[-1, 1]]], [sphere_data[indices[-1, 2]]], [sphere_data[indices[-1, 3]]], [sphere_data[indices[-1, 4]]],
                          [sphere_data[indices[-1, 5]]], [sphere_data[indices[-1, 6]]], [sphere_data[indices[-1, 7]]]))
 
@@ -47,7 +49,7 @@ ref_x = np.matmul(ref, w[:,0])
 ref_y = np.matmul(ref, w[:,1])
 ref_z = np.matmul(ref, w[:,2])
 print([ref_x, ref_y ,ref_z])
-
+'''
 
 #RBFInterpolator([points.T[0],points.T[1]], points.T[2])
 

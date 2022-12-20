@@ -7,6 +7,8 @@ from sklearn.utils import check_random_state
 from sklearn.decomposition import PCA
 import umap.umap_ as umap
 import matplotlib as mpl
+from sklearn.neighbors import NearestNeighbors
+from scipy.spatial import distance
 
 n_neighbors = 5
 n_samples = 1000
@@ -18,20 +20,12 @@ t = random_state.rand(n_samples) * np.pi
 # Sever the poles from the sphere.
 indices = (t < (np.pi - (np.pi / 8))) & (t > (np.pi / 8))
 colors = p[indices]
-colors[587] = 10
-colors[247] = 10
-colors[687] = 10
-colors[84] = 10
+
 x, y, z = (
     np.sin(t[indices]) * np.cos(p[indices]),
     np.sin(t[indices]) * np.sin(p[indices]),
     np.cos(t[indices]),
 )
-
-x = np.append(x, -0.5045532062356642)
-y = np.append(y, 0.1835642730079468)
-z = np.append(z, -0.7846912077227081)
-colors = np.append(colors, 15)
 
 # Plot our dataset.
 fig = plt.figure(figsize=(15, 8))
@@ -39,31 +33,85 @@ plt.suptitle(
     "Manifold Learning with %i points, %i neighbors" % (1000, n_neighbors), fontsize=14
 )
 
-ax = fig.add_subplot(141, projection="3d")
+ax = fig.add_subplot(151, projection="3d")
 ax.scatter(x, y, z, c=colors, cmap=mpl.cm.cool)
 ax.set_xlabel("x")
 ax.view_init(40, -10)
 
 sphere_data = np.array([x, y, z]).T
+print(sphere_data)
 
 # Perform Isomap Manifold learning.
 t0 = time()
 trans_data = (
     manifold.Isomap(n_neighbors=n_neighbors, n_components=2)
     .fit_transform(sphere_data)
-    .T
 )
 t1 = time()
 print("%s: %.2g sec" % ("ISO", t1 - t0))
 
-ax = fig.add_subplot(142)
-plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=mpl.cm.cool)
+ax = fig.add_subplot(152)
+plt.scatter(trans_data[:, 0], trans_data[:, 1], c=colors, cmap=mpl.cm.cool)
 plt.title("%s (%.2g sec)" % ("Isomap", t1 - t0))
 #ax.xaxis.set_major_formatter(NullFormatter())
 #ax.yaxis.set_major_formatter(NullFormatter())
 plt.axis("tight")
 
-print(trans_data.T[-1])
+
+a = np.append(trans_data, [[-1, 0]], axis=0)
+
+nbrs = NearestNeighbors(n_neighbors=8, algorithm='ball_tree').fit(a)
+distances, indices = nbrs.kneighbors(a)
+
+
+points = np.concatenate(([sphere_data[indices[-1, 1]]], [sphere_data[indices[-1, 2]]], [sphere_data[indices[-1, 3]]], [sphere_data[indices[-1, 4]]],
+                         [sphere_data[indices[-1, 5]]], [sphere_data[indices[-1, 6]]], [sphere_data[indices[-1, 7]]]))
+
+d = distance.cdist(points, points, 'euclidean')
+D = np.exp(d)
+w = np.matmul(np.linalg.inv(D), points)
+ref = np.exp(np.delete(distances[-1], 0))
+ref_x = np.matmul(ref, w[:,0])
+ref_y = np.matmul(ref, w[:,1])
+ref_z = np.matmul(ref, w[:,2])
+
+print([ref_x, ref_y, ref_z])
+sphere_data = np.append(sphere_data, [[ref_x, ref_y, ref_z]], axis=0)
+colors[indices[-1, 1:7]] = 10
+
+
+colors = np.append(colors, 15)
+
+ax = fig.add_subplot(153, projection="3d")
+ax.scatter(sphere_data.T[0], sphere_data.T[1], sphere_data.T[2], c=colors, cmap=mpl.cm.cool)
+ax.set_xlabel("x")
+ax.view_init(40, -10)
+
+trans_data = (
+    manifold.Isomap(n_neighbors=n_neighbors, n_components=2)
+    .fit_transform(sphere_data)
+)
+
+print("%s: %.2g sec" % ("ISO", t1 - t0))
+
+ax = fig.add_subplot(154)
+plt.scatter(trans_data[:, 0], trans_data[:, 1], c=colors, cmap=mpl.cm.cool)
+plt.title("%s (%.2g sec)" % ("Isomap", t1 - t0))
+#ax.xaxis.set_major_formatter(NullFormatter())
+#ax.yaxis.set_major_formatter(NullFormatter())
+plt.axis("tight")
+
+
+
+
+
+
+
+
+
+
+
+'''
 # PCA
 pca = PCA(n_components=3)
 pca.fit_transform(sphere_data)
@@ -80,7 +128,7 @@ ax.xaxis.set_major_formatter(NullFormatter())
 ax.yaxis.set_major_formatter(NullFormatter())
 plt.axis("tight")
 
-'''
+
 reducer = umap.UMAP()
 embedding = reducer.fit_transform(sphere_data)
 embedding.shape
