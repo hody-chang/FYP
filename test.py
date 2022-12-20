@@ -1,19 +1,34 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as axes3d
+import matplotlib.pyplot as plt
+import numpy as np
 
-N = 600
-dim = 4
 
-norm = np.random.normal
-normal_deviates = norm(size=(dim, N))
+cos = np.cos
+sin = np.sin
+sqrt = np.sqrt
+pi = np.pi
 
-radius = np.sqrt((normal_deviates**2).sum(axis=0))
-points = normal_deviates/radius
+def surf(u, v):
+    """
+    http://paulbourke.net/geometry/klein/
+    """
+    half = (0 <= u) & (u < pi)
+    r = 4*(1 - cos(u)/2)
+    x = 6*cos(u)*(1 + sin(u)) + r*cos(v + pi)
+    x[half] = (
+        (6*cos(u)*(1 + sin(u)) + r*cos(u)*cos(v))[half])
+    y = 16 * sin(u)
+    y[half] = (16*sin(u) + r*sin(u)*cos(v))[half]
+    z = r * sin(v)
+    return x, y, z
 
-print(points)
+u, v = np.linspace(0, 2*pi, 40), np.linspace(0, 2*pi, 40)
+ux, vx =  np.meshgrid(u,v)
+x, y, z = surf(ux, vx)
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-ax.scatter(*points)
-ax.set_aspect('equal')
+data = np.array([x, y, z])
+
+
+
+
 plt.show()
