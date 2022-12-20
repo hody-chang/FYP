@@ -18,20 +18,20 @@ t = random_state.rand(n_samples) * np.pi
 # Sever the poles from the sphere.
 indices = (t < (np.pi - (np.pi / 8))) & (t > (np.pi / 8))
 colors = p[indices]
-colors[626] = 0
-colors[304] = 0
-colors[397] = 0
-colors[612] = 0
+colors[587] = 10
+colors[247] = 10
+colors[687] = 10
+colors[84] = 10
 x, y, z = (
     np.sin(t[indices]) * np.cos(p[indices]),
     np.sin(t[indices]) * np.sin(p[indices]),
     np.cos(t[indices]),
 )
 
-x = np.append(x, -0.9784759353799852)
-y = np.append(y, 0.2774150205037163)
-z = np.append(z, -0.034559160835792024)
-colors = np.append(colors, 2)
+x = np.append(x, -0.5045532062356642)
+y = np.append(y, 0.1835642730079468)
+z = np.append(z, -0.7846912077227081)
+colors = np.append(colors, 15)
 
 # Plot our dataset.
 fig = plt.figure(figsize=(15, 8))
@@ -57,7 +57,7 @@ t1 = time()
 print("%s: %.2g sec" % ("ISO", t1 - t0))
 
 ax = fig.add_subplot(142)
-plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=plt.cm.rainbow)
+plt.scatter(trans_data[0], trans_data[1], c=colors, cmap=mpl.cm.cool)
 plt.title("%s (%.2g sec)" % ("Isomap", t1 - t0))
 #ax.xaxis.set_major_formatter(NullFormatter())
 #ax.yaxis.set_major_formatter(NullFormatter())

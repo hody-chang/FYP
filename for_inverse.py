@@ -31,13 +31,13 @@ trans_data = (
     .fit_transform(sphere_data)
 )
 
-a = np.append(trans_data, [[0, 0]], axis=0)
+a = np.append(trans_data, [[0, -1]], axis=0)
 
-nbrs = NearestNeighbors(n_neighbors=5, algorithm='ball_tree').fit(a)
+nbrs = NearestNeighbors(n_neighbors=8, algorithm='ball_tree').fit(a)
 distances, indices = nbrs.kneighbors(a)
-#print(distances)
 
-points = np.concatenate(([sphere_data[626]], [sphere_data[304]], [sphere_data[397]], [sphere_data[612]]))
+points = np.concatenate(([sphere_data[indices[-1, 1]]], [sphere_data[indices[-1, 2]]], [sphere_data[indices[-1, 3]]], [sphere_data[indices[-1, 4]]],
+                         [sphere_data[indices[-1, 5]]], [sphere_data[indices[-1, 6]]], [sphere_data[indices[-1, 7]]]))
 
 d = distance.cdist(points, points, 'euclidean')
 D = np.exp(d)
@@ -51,4 +51,4 @@ print([ref_x, ref_y ,ref_z])
 
 #RBFInterpolator([points.T[0],points.T[1]], points.T[2])
 
-D = distance.squareform(distance.pdist(trans_data.T))
+#D = distance.squareform(distance.pdist(trans_data.T))
