@@ -2,47 +2,59 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from sklearn import manifold
+from sklearn.utils import check_random_state
+import umap.umap_ as umap
+from sklearn.neighbors import NearestNeighbors
+from scipy.spatial import distance
 
-p = np.random.uniform(-1, 1, 1000)
-p[p < 0] = -1
-p[p > 0] = 1
+n_neighbors = 5
+n_samples = 1000
 
-x = np.random.uniform(-1, 1, 1000)
-y = np.random.uniform(-1, 1, 1000)
-'''
-y[x == 1] = 0
-y[x == -1] = 0
-x[y == 1] = 0
-x[y == -1] = 0
-'''
-s = x**2+y**2
-for i in range(100):
-    if s[i] >= 1:
-        x[i] = x[i] / np.sqrt(s[i])
-        y[i] = y[i] / np.sqrt(s[i])
-z = np.sqrt(1-x**2-y**2)*p
-np.isnan(z)
+random_state = check_random_state(0)
+p1 = random_state.rand(n_samples) * (2 * np.pi)
+p2 = random_state.rand(n_samples) * (2 * np.pi)
+p3 = random_state.rand(n_samples) * (2 * np.pi)
 
-'''
-fig = plt.figure(figsize=(15, 8))
-ax = fig.add_subplot(141, projection="3d")
+x, y, z, w = (
 
-ax.scatter(x, y, z)
+    np.cos(p1),
+    np.sin(p1) * np.cos(p2),
+    np.sin(p1) * np.sin(p2) * np.cos(p3),
+    np.sin(p1) * np.sin(p2) * np.sin(p3)
 
-data = np.array([x, y, z]).T
-
-print(data)
-
-trans_data = (
-    manifold.Isomap(n_neighbors=3, n_components=2)
-    .fit_transform(data)
-    .T
 )
+sphere_data = np.array([x, y, z, w]).T
 
-ax = fig.add_subplot(142)
+colors = p1
+fig = plt.figure(figsize=(15, 8))
+reducer = umap.UMAP()
+embedding = reducer.fit_transform(sphere_data)
+ax = fig.add_subplot()
+ax.scatter(embedding[:, 0], embedding[:, 1])
+ax.axis("tight")
 
-plt.scatter(trans_data[0], trans_data[1])
+ref_point = np.random.rand(1, 2)
+a = np.append(embedding, ref_point, axis=0)
 
+nbrs = NearestNeighbors(n_neighbors=8, algorithm='ball_tree').fit(a)
+distances, indices = nbrs.kneighbors(a)
+
+points = np.concatenate([sphere_data[indices[-1, 1:8]]])
+
+d = distance.cdist(points, points, 'euclidean')
+D = np.exp(d)
+w = np.matmul(np.linalg.inv(D), points)
+ref = np.exp(np.delete(distances[-1], 0))
+ref_x = np.matmul(ref, w[:, 0])
+ref_y = np.matmul(ref, w[:, 1])
+ref_z = np.matmul(ref, w[:, 2])
+ref_w = np.matmul(ref, w[:, 3])
+
+s = np.sqrt(ref_x ** 2 + ref_y ** 2 + ref_z ** 2 + ref_w ** 2)
+sphere_data = np.append(sphere_data, [[ref_x / s, ref_y / s, ref_z / s, ref_w / s]], axis=0)
+colors[indices[-1, 1:7]] = 10
+
+embedding = reducer.fit_transform(sphere_data)
+print(distance.cdist([embedding[-1]], ref_point, 'euclidean'))
 
 plt.show()
-'''
