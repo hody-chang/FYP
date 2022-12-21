@@ -30,7 +30,7 @@ fig = plt.figure(figsize=(15, 8))
 reducer = umap.UMAP()
 embedding = reducer.fit_transform(sphere_data)
 ax = fig.add_subplot()
-ax.scatter(embedding[:, 0], embedding[:, 1])
+ax.scatter(embedding[:, 0], embedding[:, 1], c = p1)
 ax.axis("tight")
 
 ref_point = np.random.rand(1, 2)
